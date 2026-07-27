@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0",
+  "description": "Maps each Vinvite canonical schema field to known real-world header variants seen across county election exports, CRMs, spreadsheets, and volunteer-maintained lists. Consumed independently by the Column Mapping Engine.",
+  "fields": {
+    "VoterID": ["VoterID", "VOTER_ID", "Voter ID", "VoterId", "ID", "RecordID", "voter_id"],
+    "Prefix": ["Prefix", "Title", "NamePrefix", "Salutation", "PREFIX"],
+    "FirstName": ["First Name", "FirstName", "FIRST_NAME", "FIRST", "FNAME", "GivenName", "First", "first_name"],
+    "MiddleName": ["Middle Name", "MiddleName", "MI", "MIDDLE_NAME", "MNAME", "middle_name"],
+    "LastName": ["Last Name", "LastName", "LAST_NAME", "LAST", "LNAME", "Surname", "FamilyName", "last_name"],
+    "Suffix": ["Suffix", "NameSuffix", "SUFFIX", "Generation"],
+    "Gender": ["Gender", "Sex", "GENDER", "gender_code"],
+    "DOB": ["DOB", "Date of Birth", "BirthDate", "DateOfBirth", "BIRTH_DATE", "dob"],
+    "Age": ["Age", "AGE", "VoterAge"],
+    "Street1": ["Street1", "Address1", "ADDR1", "Street Address", "StreetAddress", "AddressLine1", "street_1"],
+    "Street2": ["Street2", "Address2", "ADDR2", "Apt/Unit", "Unit", "AddressLine2", "street_2"],
+    "City": ["City", "CITY_NAME", "CITY", "Town", "city_name"],
+    "State": ["State", "ST", "STATE_CODE", "Province"],
+    "ZIP": ["ZIP", "Zip Code", "ZIP5", "Postal Code", "ZIPCODE", "zip_code"],
+    "County": ["County", "COUNTY_NAME", "COUNTY", "county_name"],
+    "Precinct": ["Precinct", "PRECINCT_CODE", "PrecinctNumber", "PRCT"],
+    "District": ["District", "DISTRICT_CODE", "DistrictNumber", "DIST"],
+    "Phone": ["Phone", "Mobile", "Cell", "CellPhone", "PhoneNumber", "CELL_PHONE", "CELL", "PHONE", "phone_number"],
+    "Email": ["Email", "EMAIL_ADDR", "EmailAddress", "E-mail", "EMAIL", "email_address"],
+    "PreferredLanguage": ["Language", "Lang", "PreferredLanguage", "LANG_PREF", "LANG", "LanguagePreference", "Preferred_Language"],
+    "Party": ["Party", "PoliticalParty", "PARTY_CODE", "PartyAffiliation"],
+    "HouseholdID": ["HouseholdID", "Household ID", "HH_ID", "HouseholdNumber", "household_id"],
+    "Latitude": ["Latitude", "LAT", "Y_COORD"],
+    "Longitude": ["Longitude", "LONG", "LNG", "X_COORD"],
+    "RegistrationStatus": ["RegistrationStatus", "Status", "VOTER_STATUS", "RegStatus"],
+    "LastUpdated": ["LastUpdated", "Last Updated", "MODIFIED_DATE", "UpdateDate", "last_updated"],
+    "Notes": ["Notes", "Comments", "Volunteer Notes", "Call Status", "Favorite Issue", "Visited", "Remarks"]
+  }
+}
