@@ -1,7 +1,7 @@
 # Vinvite Synthetic Voter Dataset Generator — Execution Backlog (TASKS.md)
 **Prepared by:** Chief Software Architect, Zapurzaa Systems (ZSPL)
 **Audience:** Implementation engineer (Codex)
-**Source:** Derived from `IMPLEMENTATION_PLAN.md`'s 68 tasks across 9 phases / 18 epics
+**Source:** Derived from `IMPLEMENTATION_PLAN.md`'s 70 tasks across 9 phases / 18 epics (68 original + 2 added during pre-implementation review)
 **Status:** Execution backlog — no code, no architecture changes
 
 ---
@@ -9,28 +9,35 @@
 ## How this document was built
 Every task in `IMPLEMENTATION_PLAN.md` is broken into one or more atomic engineering tasks below, each independently implementable, sized to fit a single pull request, and scoped to roughly 2–4 hours of engineering effort.
 
-**Documented assumption:** `IMPLEMENTATION_PLAN.md` sized its 68 tasks at Small/Medium/Large complexity, where Small tasks already fit a 2–4 hour PR but Medium and Large tasks do not. To satisfy this document's 2–4 hour requirement, every Medium task from the plan is split into 2 atomic tasks here, and every Large task (`T2.2.1`, `T6.2.1`) is split into 4. This is a decomposition of existing scope, not a redesign — no task's underlying engineering content changes, only its granularity. Per the plan's own instruction to report assumptions rather than invent requirements, this is flagged here rather than silently assumed.
+**Documented assumption:** `IMPLEMENTATION_PLAN.md` sized its original 68 tasks at Small/Medium/Large complexity, where Small tasks already fit a 2–4 hour PR but Medium and Large tasks do not. To satisfy this document's 2–4 hour requirement, every Medium task from the plan is split into 2 atomic tasks here, and every Large task (`T2.2.1`, `T6.2.1`) is split into 4. This is a decomposition of existing scope, not a redesign — no task's underlying engineering content changes, only its granularity. Per the plan's own instruction to report assumptions rather than invent requirements, this is flagged here rather than silently assumed.
 
 Each original `IMPLEMENTATION_PLAN.md` task ID (e.g. `T2.2.1`) is referenced in parentheses after its resulting TASK-IDs below, for traceability back to the Epic and Definition of Done in that document.
 
-**File paths:** shown as language-agnostic module paths matching `ARCHITECTURE.md`'s naming (e.g. `core/record_generator`), since implementation language/stack remains an open question per `IMPLEMENTATION_PLAN.md` §11. Once a stack is chosen, apply the appropriate file extension.
+**File paths:** shown as extension-less module paths matching `ARCHITECTURE.md`'s naming (e.g. `core/record_generator`) since these were written before the stack decision. Python 3.11+ was resolved as the implementation language during the `AGENTS.md`/`CODING_STANDARDS.md` review pass (see `CODING_STANDARDS.md`) — apply `.py` to module paths and `.json`/`.md` where already implied by context (e.g. `column_synonyms.json`, `docs/*.md`).
 
 ---
 
 ## Summary
-**Total atomic tasks: 93**, across 9 phases.
+**Total atomic tasks: 95**, across 9 phases. (93 from the original pass + 2 appended during pre-implementation review — see Revision Notes below.)
 
 | Phase | Name | Task Count | Task ID Range |
 |---|---|---|---|
 | 1 | Project Foundation | 15 | TASK-001–TASK-015 |
 | 2 | Core Data Generation Engine | 16 | TASK-016–TASK-031 |
 | 3 | Synthetic Data Providers | 12 | TASK-032–TASK-043 |
-| 4 | Data Mutation Engine | 19 | TASK-044–TASK-062 |
-| 5 | Metrics Engine | 7 | TASK-063–TASK-069 |
+| 4 | Data Mutation Engine | 19 (+1) | TASK-044–TASK-062, TASK-095 |
+| 5 | Metrics Engine | 7 (+1) | TASK-063–TASK-069, TASK-094 |
 | 6 | Export Engine | 10 | TASK-070–TASK-079 |
 | 7 | Validation | 5 | TASK-080–TASK-084 |
 | 8 | Regression Test Suite | 5 | TASK-085–TASK-089 |
 | 9 | Documentation | 4 | TASK-090–TASK-093 |
+
+## Revision Notes (pre-implementation review pass)
+Two gaps were identified comparing the original PRD against `DATASET_SPECS.md`/`IMPLEMENTATION_PLAN.md`/this file, and closed by Product Owner decision:
+- **TASK-094** — the PRD's "Data Quality Metrics" list includes an Unknown Columns count that the Metrics Engine (Phase 5) never got a calculator for. Appended rather than inserted, to avoid renumbering TASK-001–093.
+- **TASK-095** — the PRD's "Randomized Variations" section calls for CSV-encoding-level noise (embedded commas, quoted values, Unicode characters, special symbols) that never made it into any dataset spec. By Product Owner decision, this was added to Dataset 10's existing defect mix (see `DATASET_SPECS.md`) rather than as a new dataset. Appended for the same renumbering-avoidance reason.
+
+Both are placed at the end of the file rather than inline in their logical phase to preserve the existing TASK-001–093 numbering and every dependency reference built on it. Their Dependencies fields correctly point back into the phases they logically belong to (Phase 5 and Phase 4 respectively).
 
 ---
 
@@ -58,7 +65,7 @@ Tasks are listed below in the exact order they should be executed: phase by phas
 | Field | Detail |
 |---|---|
 | Description | Choose and configure a package manager/manifest for the implementation language; pin versions. |
-| Inputs | Language/stack decision (Open Question) |
+| Inputs | Python 3.11+ (resolved during pre-implementation review; see `CODING_STANDARDS.md`) |
 | Outputs | Dependency manifest + lockfile |
 | Dependencies | TASK-001 |
 | Files Expected to Change | dependency manifest file, lockfile |
@@ -1300,6 +1307,34 @@ Tasks are listed below in the exact order they should be executed: phase by phas
 | Estimated Complexity | Small (2–4 hours) |
 | Definition of Done | Acceptance criteria met, required unit tests pass, PR merged with no unresolved review comments. |
 
+## Appended Tasks (added during pre-implementation review)
+
+#### TASK-094 — Implement unknown-column count calculator (T5.1.7)
+| Field | Detail |
+|---|---|
+| Description | Report the count of unknown/extra (non-canonical) columns present in a dataset's output, directly from the column_mapper's/CSV writer's known configuration state. |
+| Inputs | T3.2.2, T6.1.2 configuration state |
+| Outputs | Unknown-column count metrics function |
+| Dependencies | TASK-069, TASK-072 |
+| Files Expected to Change | core/metrics_calculator |
+| Unit Tests Required | Assert calculator output equals the configured unknown-column count for Datasets 3 and 10; assert zero for datasets with no extra columns. |
+| Acceptance Criteria | Exact match to configured unknown-column count on Datasets 3 and 10. |
+| Estimated Complexity | Small (2–4 hours) |
+| Definition of Done | Acceptance criteria met, required unit tests pass, PR merged with no unresolved review comments. |
+
+#### TASK-095 — Implement CSV-encoding noise injector for Dataset 10 (T4.4.5)
+| Field | Detail |
+|---|---|
+| Description | Apply CSV-encoding-level noise (unescaped embedded commas, values requiring quote-escaping, Unicode characters consistent with the multilingual name pools, special symbols) to ~5% of Dataset 10 records on a text field (Notes, FirstName, LastName, or Street1). |
+| Inputs | T2.2.1 output, T3.1.2 (name pools) |
+| Outputs | CSV-encoding noise injector |
+| Dependencies | TASK-023, TASK-035 |
+| Files Expected to Change | core/defect_injector |
+| Unit Tests Required | Assert injected rate (~5%); assert round-trip through the CSV writer preserves the noisy value exactly. |
+| Acceptance Criteria | At Dataset 10 scale, ~5% of records carry exactly one of the four noise types on exactly one text field, with zero data loss on CSV round-trip. |
+| Estimated Complexity | Small (2–4 hours) |
+| Definition of Done | Acceptance criteria met, required unit tests pass (including a round-trip case per noise type, coordinated with TASK-073), PR merged with no unresolved review comments. |
+
 ---
 
 ## Parallel Execution Groups
@@ -1394,3 +1429,5 @@ The groups below list tasks that have no dependency relationship on each other a
 | T9.1.2 | TASK-091 |
 | T9.1.3 | TASK-092 |
 | T9.1.4 | TASK-093 |
+| T5.1.7 (appended) | TASK-094 |
+| T4.4.5 (appended) | TASK-095 |
