@@ -18,6 +18,10 @@ people, or real PII are used or referenced anywhere in this suite.
 | `SCHEMA.md` | The 24-field canonical Vinvite schema every dataset ultimately maps into |
 | `DATASET_SPECS.md` | Concrete, buildable parameters for all 10 datasets (record counts, defect rates, expected outcomes) |
 | `column_synonyms.json` | Data artifact: canonical field → real-world header variants, for the mapping engine |
+| `IMPLEMENTATION_PLAN.md` | Full engineering execution roadmap: 9 phases, 18 epics, 70 tasks with dependencies, risks, and milestones |
+| `TASKS.md` | Atomic execution backlog derived from the plan: 95 tasks (TASK-001–TASK-095), each 2–4 hours and independently implementable |
+| `AGENTS.md` | Rules and workflow for the implementation agent (Codex): what to read, scope boundaries, stop conditions |
+| `CODING_STANDARDS.md` | Python coding standards for this project: style, structure, testing, and required checks |
 | `README.md` | This file |
 
 ## Dataset suite overview
