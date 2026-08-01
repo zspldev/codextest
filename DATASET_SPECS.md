@@ -111,8 +111,19 @@ ones.
 - **Records:** 2,000
 - **Config:** Union of all defect types above at reduced individual rates
   (roughly half the intensity of each dedicated dataset), plus randomized
-  column order, plus unknown extra columns, plus volunteer-note noise.
-  This is the only dataset combining every defect class simultaneously.
+  column order, plus unknown extra columns, plus volunteer-note noise,
+  plus CSV-encoding noise (see below). This is the only dataset combining
+  every defect class simultaneously.
+- **CSV-encoding noise (added during pre-implementation review):** ~5% of
+  records get one of the following applied to a text field (Notes,
+  FirstName, LastName, or Street1): an unescaped embedded comma, a value
+  requiring CSV quote-escaping (embedded quote or comma inside quotes), a
+  Unicode character (e.g. accented Latin letters consistent with the
+  multilingual name pools — José, Nguyễn — or CJK/Arabic/Cyrillic script
+  matching Dataset 9's language groups), or a special symbol (&, %, #, @).
+  This closes a gap identified during pre-implementation review: the
+  original PRD's "Randomized Variations" section calls for this class of
+  noise but it wasn't captured in any dataset spec until now.
 - **Expected:** No single expected metric in isolation — this is a stress
   test. Engine should complete without crashing and produce a Readiness
   score meaningfully lower than Dataset 1 but the import should still
