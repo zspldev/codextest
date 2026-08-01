@@ -81,7 +81,7 @@ Each phase below lists its Epics (purpose, business value, dependencies, deliver
 | Field | Detail |
 |---|---|
 | Description | Choose and configure a package manager/manifest appropriate to the implementation language; pin versions. |
-| Inputs | Language/stack decision (open question, see §11) |
+| Inputs | Python 3.11+ (resolved during pre-implementation review, see §11 and `CODING_STANDARDS.md`) |
 | Outputs | Dependency manifest + lockfile |
 | Dependencies | T1.1.1 |
 | Estimated Complexity | Small |
@@ -769,6 +769,19 @@ Each phase below lists its Epics (purpose, business value, dependencies, deliver
 | Required Unit Tests | The suite itself. |
 | Potential Risks | Low. |
 
+**T4.4.5 — Implement CSV-encoding noise injector for Dataset 10**
+
+| Field | Detail |
+|---|---|
+| Description | Apply CSV-encoding-level noise (unescaped embedded commas, values requiring quote-escaping, Unicode characters consistent with the multilingual name pools, special symbols) to ~5% of records on a text field (Notes, FirstName, LastName, or Street1). Added during pre-implementation review to close a gap between the original PRD's "Randomized Variations" section and DATASET_SPECS.md; scoped to Dataset 10 only per Product Owner decision. |
+| Inputs | T2.2.1 output, T3.1.2 (name pools, for Unicode consistency) |
+| Outputs | CSV-encoding noise injector |
+| Dependencies | T2.2.1, T3.1.2 |
+| Estimated Complexity | Small |
+| Definition of Done | At Dataset 10 scale, ~5% of records carry exactly one of the four noise types on exactly one text field; the CSV writer (Phase 6) correctly round-trips these values without data loss. |
+| Required Unit Tests | Assert injected rate; assert round-trip through the CSV writer preserves the noisy value exactly (requires coordination with T6.1.3's round-trip suite). |
+| Potential Risks | Medium — quoting/escaping bugs here could silently corrupt data on write or re-read; the round-trip test in T6.1.3 must include at least one case per noise type, not just Dataset-level spot checks. |
+
 ## Phase 5: Metrics Engine
 **Goal:** Compute ground-truth metrics directly from generation/injection parameters, never by re-inferring them from output data — the 'correct-by-construction' principle from ARCHITECTURE.md.
 
@@ -858,6 +871,19 @@ Each phase below lists its Epics (purpose, business value, dependencies, deliver
 | Definition of Done | Zero discrepancies between reported metrics and injection ground truth across all 10 datasets. |
 | Required Unit Tests | The suite itself — this is effectively the project's core correctness gate. |
 | Potential Risks | Medium — by design, this task will surface any drift accumulated in Phases 2–4; budget time for fixing upstream issues discovered here, not just this task's own code. |
+
+**T5.1.7 — Implement unknown-column count calculator**
+
+| Field | Detail |
+|---|---|
+| Description | Report the count of unknown/extra (non-canonical) columns present in a dataset's output, directly from the column_mapper's/CSV writer's known configuration state (Dataset 3's 2 blank + 4 named extra columns; Dataset 10's extra columns). Added during pre-implementation review — this metric is listed in the original PRD's "Data Quality Metrics" section but was omitted from the initial Phase 5 task breakdown. |
+| Inputs | T3.2.2, T6.1.2 configuration state |
+| Outputs | Unknown-column count metrics function |
+| Dependencies | T5.1.6 |
+| Estimated Complexity | Small |
+| Definition of Done | Exact match to configured unknown-column count on Datasets 3 and 10. |
+| Required Unit Tests | Assert calculator output equals the configured unknown-column count for Datasets 3 and 10; assert zero for datasets with no extra columns. |
+| Potential Risks | Low. |
 
 ## Phase 6: Export Engine
 **Goal:** Turn generated, mutated, mapped record batches into the actual output files (CSV) for all 10 datasets in one orchestrated run.
@@ -1179,7 +1205,7 @@ E3.2 (column synonym integration) depends only on the already-committed `column_
 | Dataset 8's 'zero false positives on clean fields' requirement violated silently (T4.3.4) | Medium | Medium — would undermine the specific test purpose of the Invalid Data Dataset. | Dedicated full-record validation test, not just spot checks; treat as a hard gate before Phase 5 begins. |
 | Metrics Engine (Phase 5) surfaces upstream bugs from Phases 2–4 | High | Medium — expected and even desirable, but could be mistaken for a Phase 5 defect and misallocate debugging time. | Document in task T5.1.6 that failures here are diagnostic for earlier phases; budget fix time against the originating phase, not Phase 5. |
 | Golden-snapshot regression check (T8.1.2) becomes a rubber stamp | Low | Medium — if updating the snapshot becomes routine/unreviewed, the check stops catching real regressions. | Require an explicit, reviewed justification in the PR description any time a golden snapshot is updated. |
-| Stack/language decision (see §11 Open Questions) made late | Medium | Low–Medium — mostly affects Phase 1 setup tasks; low blast radius if decided before Phase 1 starts. | Resolve as the first Open Question before any Phase 1 task begins. |
+| ~~Stack/language decision made late~~ — **Resolved: Python 3.11+** | N/A | N/A | Resolved during pre-implementation review, before any Phase 1 task began. See `CODING_STANDARDS.md`. |
 | CI provider access/permissions unavailable to the implementing agent (T1.1.5, T8.1.3) | Low | Medium — blocks automated gating, though local test/lint runs remain possible. | Flag immediately if CI access is unavailable; fall back to a documented manual pre-merge checklist. |
 
 ---
@@ -1196,7 +1222,7 @@ E3.2 (column synonym integration) depends only on the already-committed `column_
 ---
 
 # 11. Open Questions
-- **Implementation language/stack.** Not yet decided (flagged as open during the architecture phase). This affects T1.1.2 onward and should be resolved before Phase 1 begins.
+- ~~**Implementation language/stack.**~~ **Resolved during pre-implementation review: Python 3.11+.** See `CODING_STANDARDS.md` for the full stack decision (formatter, linter, type checker, test framework, and required checks). This affects T1.1.2 onward.
 - **CI provider.** Which CI system will host T1.1.5/T8.1.3? Needs to be confirmed or the plan re-scoped to manual gating.
 - **Golden-snapshot storage.** Where do T8.1.2's committed golden-output snapshots live — in-repo (adds repo size) or an external artifact store? Needs a decision before Phase 8.
 - **Scale-up trigger.** What signals that it's time to multiply the small-scale record counts toward the original ~100k target — is that a separate future plan, or should Phase 6+ budget for a scale-up pass within this cycle?
